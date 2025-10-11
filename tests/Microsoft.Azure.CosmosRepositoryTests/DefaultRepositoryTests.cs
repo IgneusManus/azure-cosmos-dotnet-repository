@@ -103,6 +103,30 @@ public class DefaultRepositoryTests
         Assert.Equal(2, queryable.ToList().Count);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task UpdateAsync_SingleItem_WhenNoItemSpecificOptimizeBandwidthSettingIsSet_ShouldUseTheRepositoryOptionsOptimizeBandwidthSetting(bool repositoryOptionsOptimizeBandwidth)
+    {
+        // Arrange
+        _repositoryOptions.OptimizeBandwidth = repositoryOptionsOptimizeBandwidth;
+        TestItem item = new();
+
+        _containerProviderForTestItem.Setup(cp => cp.GetContainerAsync()).ReturnsAsync(_container.Object);
+        if (!repositoryOptionsOptimizeBandwidth)
+        {
+            _container.Setup(x => x.UpsertItemAsync(It.IsAny<TestItem>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Mock<ItemResponse<TestItem>>().Object);
+        }
+
+        // Act
+        await RepositoryForItemWithoutETag.UpdateAsync(item);
+
+        // Assert
+        _container.Verify(container => container.UpsertItemAsync(item, new PartitionKey(item.Id), It.Is<ItemRequestOptions>(options => options.EnableContentResponseOnWrite == !repositoryOptionsOptimizeBandwidth), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+
     [Fact]
     public async Task CreateAsync_SingleItemWithTimeStamps_WhenCreatedTimeStampHasNotBeenSet_ShouldSetCreatedTimeStamp()
     {
