@@ -7,6 +7,7 @@ namespace Microsoft.Azure.CosmosRepository;
 /// <inheritdoc/>
 internal sealed partial class DefaultRepository<TItem>(
     IOptionsMonitor<RepositoryOptions> optionsMonitor,
+    ICosmosOptimizeBandwidthProvider cosmosOptimizeBandwidthProvider,
     ICosmosContainerProvider<TItem> containerProvider,
     ILogger<DefaultRepository<TItem>> logger,
     ICosmosQueryableProcessor cosmosQueryableProcessor,
@@ -14,12 +15,6 @@ internal sealed partial class DefaultRepository<TItem>(
     ISpecificationEvaluator specificationEvaluator) : IRepository<TItem>
     where TItem : IItem
 {
-    private (bool OptimizeBandwidth, ItemRequestOptions Options) RequestOptions =>
-        (optionsMonitor.CurrentValue.OptimizeBandwidth, new ItemRequestOptions
-        {
-            EnableContentResponseOnWrite = !optionsMonitor.CurrentValue.OptimizeBandwidth
-        });
-
     private static void TryLogDebugDetails(ILogger logger, Func<string> getMessage)
     {
         // ReSharper disable once ConstantConditionalAccessQualifier

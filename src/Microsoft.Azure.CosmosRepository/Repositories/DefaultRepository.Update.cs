@@ -12,10 +12,15 @@ internal sealed partial class DefaultRepository<TItem>
         bool ignoreEtag = false,
         CancellationToken cancellationToken = default)
     {
-        (var optimizeBandwidth, ItemRequestOptions options) = RequestOptions;
         Container container =
             await containerProvider.GetContainerAsync()
                 .ConfigureAwait(false);
+
+        var optimizeBandwidth = cosmosOptimizeBandwidthProvider.OptimizeBandwidth<TItem>();
+        var options = new ItemRequestOptions()
+        {
+            EnableContentResponseOnWrite = !optimizeBandwidth
+        };
 
         if (value is IItemWithEtag valueWithEtag && !ignoreEtag)
         {

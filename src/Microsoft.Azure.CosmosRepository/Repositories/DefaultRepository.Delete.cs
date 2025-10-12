@@ -26,13 +26,18 @@ internal sealed partial class DefaultRepository<TItem>
         PartitionKey partitionKey,
         CancellationToken cancellationToken = default)
     {
-        ItemRequestOptions options = RequestOptions.Options;
         Container container = await containerProvider.GetContainerAsync().ConfigureAwait(false);
 
         if (partitionKey == default)
         {
             partitionKey = new PartitionKey(id);
         }
+
+        var optimizeBandwidth = cosmosOptimizeBandwidthProvider.OptimizeBandwidth<TItem>();
+        var options = new ItemRequestOptions()
+        {
+            EnableContentResponseOnWrite = !optimizeBandwidth
+        };
 
         _ = await container.DeleteItemAsync<TItem>(id, partitionKey, options, cancellationToken)
             .ConfigureAwait(false);

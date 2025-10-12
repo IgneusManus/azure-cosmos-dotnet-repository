@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     internal static IServiceCollection AddCosmosRepository(
         this IServiceCollection services,
         string? connectionName,
-        IConfiguration? configuration,        
+        IConfiguration? configuration,
         Action<RepositoryOptions>? setupAction = default,
         Action<CosmosClientOptions>? additionalSetupAction = default)
     {
@@ -72,7 +72,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IChangeFeedService, DefaultChangeFeedService>()
             .AddSingleton<ILeaseContainerProvider, DefaultLeaseContainerProvider>()
             .AddSingleton<IChangeFeedOptionsProvider, DefaultChangeFeedOptionsProvider>()
-            .AddSingleton<ICosmosStrictTypeCheckingProvider, DefaultCosmosStrictTypeCheckingProvider>();
+            .AddSingleton<ICosmosStrictTypeCheckingProvider, DefaultCosmosStrictTypeCheckingProvider>()
+            .AddSingleton<ICosmosOptimizeBandwidthProvider, DefaultCosmosOptimizeBandwidthProvider>();
 
         if (setupAction != default)
         {

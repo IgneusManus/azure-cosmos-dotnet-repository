@@ -9,6 +9,7 @@ public partial class PagingTests
     readonly Mock<ICosmosContainerProvider<TestItem>> _containerProviderForTestItem = new();
     readonly Mock<ICosmosQueryableProcessor> _queryableProcessor = new();
     readonly Mock<IOptionsMonitor<RepositoryOptions>> _options = new();
+    readonly Mock<ICosmosOptimizeBandwidthProvider> _cosmosOptimizeBandwidthProvider = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<Container> _container = new();
     readonly IRepositoryExpressionProvider _expressionProvider = new MockExpressionProvider();
@@ -16,6 +17,7 @@ public partial class PagingTests
 
     private DefaultRepository<TestItem> RepositoryForTestItem =>
         new(_options.Object,
+            _cosmosOptimizeBandwidthProvider.Object,
             _containerProviderForTestItem.Object,
             new NullLogger<DefaultRepository<TestItem>>(),
             _queryableProcessor.Object,
@@ -24,9 +26,12 @@ public partial class PagingTests
 
     private static readonly string[] s_sourceArray = ["🎶", "💿", "🎸", "🥁", "🎙"];
 
-    public PagingTests() =>
+    public PagingTests()
+    {
         _options.Setup(monitor => monitor.CurrentValue)
             .Returns(_repositoryOptions);
+        _cosmosOptimizeBandwidthProvider.Setup(o => o.OptimizeBandwidth<IItem>()).Returns(true);
+    }
 
     [Fact(Skip = "Unable to fake/mock ToFeedIterator.")]
     public async Task ReadOnlyRepositoriesDefaultImplementationOfPageAsyncYieldsCorrectly()
