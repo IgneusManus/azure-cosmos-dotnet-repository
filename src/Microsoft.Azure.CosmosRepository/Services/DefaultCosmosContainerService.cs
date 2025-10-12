@@ -33,7 +33,7 @@ class DefaultCosmosContainerService : ICosmosContainerService
     {
         try
         {
-            ItemConfiguration itemConfiguration = _cosmosItemConfigurationProvider.GetItemConfiguration(itemType);
+            IItemConfiguration itemConfiguration = _cosmosItemConfigurationProvider.GetItemConfiguration(itemType);
 
             Database database =
                 _options.IsAutoResourceCreationIfNotExistsEnabled

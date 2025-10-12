@@ -9,7 +9,8 @@ public partial class PagingTests
     readonly Mock<ICosmosContainerProvider<TestItem>> _containerProviderForTestItem = new();
     readonly Mock<ICosmosQueryableProcessor> _queryableProcessor = new();
     readonly Mock<IOptionsMonitor<RepositoryOptions>> _options = new();
-    readonly Mock<ICosmosOptimizeBandwidthProvider> _cosmosOptimizeBandwidthProvider = new();
+    readonly Mock<ICosmosItemConfigurationProvider> _cosmosItemConfigurationProvider = new();
+    readonly Mock<IItemConfiguration> _itemConfiguration = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<Container> _container = new();
     readonly IRepositoryExpressionProvider _expressionProvider = new MockExpressionProvider();
@@ -17,7 +18,7 @@ public partial class PagingTests
 
     private DefaultRepository<TestItem> RepositoryForTestItem =>
         new(_options.Object,
-            _cosmosOptimizeBandwidthProvider.Object,
+            _cosmosItemConfigurationProvider.Object,
             _containerProviderForTestItem.Object,
             new NullLogger<DefaultRepository<TestItem>>(),
             _queryableProcessor.Object,
@@ -30,7 +31,8 @@ public partial class PagingTests
     {
         _options.Setup(monitor => monitor.CurrentValue)
             .Returns(_repositoryOptions);
-        _cosmosOptimizeBandwidthProvider.Setup(o => o.OptimizeBandwidth<IItem>()).Returns(true);
+        _itemConfiguration.Setup(o => o.OptimizeBandwidth).Returns(() => _repositoryOptions.OptimizeBandwidth);
+        _cosmosItemConfigurationProvider.Setup(o => o.GetItemConfiguration<IItem>()).Returns(_itemConfiguration.Object);
     }
 
     [Fact(Skip = "Unable to fake/mock ToFeedIterator.")]

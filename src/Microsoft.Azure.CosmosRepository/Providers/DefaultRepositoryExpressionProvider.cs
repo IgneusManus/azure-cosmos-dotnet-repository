@@ -8,14 +8,14 @@ class DefaultRepositoryExpressionProvider(ICosmosItemConfigurationProvider itemC
     public Expression<Func<TItem, bool>> Build<TItem>(Expression<Func<TItem, bool>> predicate)
         where TItem : IItem
     {
-        ItemConfiguration options = itemConfigurationProvider.GetItemConfiguration<TItem>();
+        IItemConfiguration options = itemConfigurationProvider.GetItemConfiguration<TItem>();
 
         return options.UseStrictTypeChecking ? predicate.Compose(Default<TItem>(), Expression.AndAlso) : predicate;
     }
 
     public Expression<Func<TItem, bool>> Default<TItem>() where TItem : IItem
     {
-        ItemConfiguration options = itemConfigurationProvider.GetItemConfiguration<TItem>();
+        IItemConfiguration options = itemConfigurationProvider.GetItemConfiguration<TItem>();
 
         return options.UseStrictTypeChecking
             ? item => !item.Type.IsDefined() || item.Type == typeof(TItem).Name
@@ -24,7 +24,7 @@ class DefaultRepositoryExpressionProvider(ICosmosItemConfigurationProvider itemC
 
     public TItem CheckItem<TItem>(TItem item) where TItem : IItem
     {
-        ItemConfiguration options = itemConfigurationProvider.GetItemConfiguration<TItem>();
+        IItemConfiguration options = itemConfigurationProvider.GetItemConfiguration<TItem>();
 
         if (options.UseStrictTypeChecking)
         {

@@ -12,6 +12,7 @@ public class DefaultCosmosItemConfigurationProviderTests
     readonly Mock<ICosmosContainerSyncContainerPropertiesProvider> _syncContainerPropertiesProvider = new();
     readonly Mock<ICosmosThroughputProvider> _throughputProvider = new();
     readonly Mock<ICosmosStrictTypeCheckingProvider> _strictTypeCheckingProvider = new();
+    readonly Mock<ICosmosOptimizeBandwidthProvider> _cosmosOptimizeBandwidthProvider = new();
 
     [Fact]
     public void GetOptionsAlwaysGetOptionsForItem()
@@ -23,7 +24,9 @@ public class DefaultCosmosItemConfigurationProviderTests
             _defaultTimeToLiveProvider.Object,
             _syncContainerPropertiesProvider.Object,
             _throughputProvider.Object,
-            _strictTypeCheckingProvider.Object);
+            _strictTypeCheckingProvider.Object,
+            _cosmosOptimizeBandwidthProvider.Object
+        );
 
         UniqueKeyPolicy uniqueKeyPolicy = new();
         var throughputProperties = ThroughputProperties.CreateAutoscaleThroughput(400);
@@ -34,8 +37,9 @@ public class DefaultCosmosItemConfigurationProviderTests
         _defaultTimeToLiveProvider.Setup(o => o.GetDefaultTimeToLive(typeof(Item1))).Returns(10);
         _syncContainerPropertiesProvider.Setup(o => o.GetWhetherToSyncContainerProperties(typeof(Item1))).Returns(true);
         _throughputProvider.Setup(o => o.GetThroughputProperties(typeof(Item1))).Returns(throughputProperties);
+        _cosmosOptimizeBandwidthProvider.Setup(o => o.OptimizeBandwidth(typeof(Item1))).Returns(true);
 
-        ItemConfiguration configuration = provider.GetItemConfiguration<Item1>();
+        IItemConfiguration configuration = provider.GetItemConfiguration<Item1>();
 
         Assert.Equal(typeof(Item1).FullName, configuration.ContainerName);
         Assert.Equal("/id", configuration.PartitionKeyPath);
@@ -43,6 +47,7 @@ public class DefaultCosmosItemConfigurationProviderTests
         Assert.Equal(10, configuration.DefaultTimeToLive);
         Assert.True(configuration.SyncContainerProperties);
         Assert.Equal(throughputProperties, configuration.ThroughputProperties);
+        Assert.True(configuration.OptimizeBandwidth);
     }
 
     [Fact]
@@ -55,13 +60,14 @@ public class DefaultCosmosItemConfigurationProviderTests
             _defaultTimeToLiveProvider.Object,
             _syncContainerPropertiesProvider.Object,
             _throughputProvider.Object,
-            _strictTypeCheckingProvider.Object);
+            _strictTypeCheckingProvider.Object,
+            _cosmosOptimizeBandwidthProvider.Object);
 
         _containerNameProvider.Setup(o => o.GetContainerName(It.IsAny<Type>())).Returns<Type>(t => t.FullName!);
 
-        IEnumerable<string> expectedContainerNames = new[] {typeof(Item1).Assembly}
+        IEnumerable<string> expectedContainerNames = new[] { typeof(Item1).Assembly }
             .SelectMany(s => s.GetTypes())
-            .Where(p => typeof(IItem).IsAssignableFrom(p) && p is {IsInterface: false, IsAbstract: false})
+            .Where(p => typeof(IItem).IsAssignableFrom(p) && p is { IsInterface: false, IsAbstract: false })
             .Select(t => t.FullName!).OrderBy(name => name);
 
         IEnumerable<string> containerNames = provider.GetAllItemConfigurations(typeof(Item1).Assembly).Select(c => c.ContainerName).OrderBy(name => name);

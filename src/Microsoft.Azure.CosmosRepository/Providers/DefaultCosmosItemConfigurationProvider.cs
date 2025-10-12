@@ -10,21 +10,22 @@ class DefaultCosmosItemConfigurationProvider(
     ICosmosContainerDefaultTimeToLiveProvider containerDefaultTimeToLiveProvider,
     ICosmosContainerSyncContainerPropertiesProvider syncContainerPropertiesProvider,
     ICosmosThroughputProvider cosmosThroughputProvider,
-    ICosmosStrictTypeCheckingProvider cosmosStrictTypeCheckingProvider) : ICosmosItemConfigurationProvider
+    ICosmosStrictTypeCheckingProvider cosmosStrictTypeCheckingProvider,
+    ICosmosOptimizeBandwidthProvider cosmosOptimizeBandwidthProvider) : ICosmosItemConfigurationProvider
 {
-    private static readonly ConcurrentDictionary<Type, ItemConfiguration> _itemOptionsMap = new();
+    private static readonly ConcurrentDictionary<Type, IItemConfiguration> _itemOptionsMap = new();
 
-    public ItemConfiguration GetItemConfiguration<TItem>() where TItem : IItem =>
+    public IItemConfiguration GetItemConfiguration<TItem>() where TItem : IItem =>
         GetItemConfiguration(typeof(TItem));
 
-    public ItemConfiguration GetItemConfiguration(Type itemType) =>
+    public IItemConfiguration GetItemConfiguration(Type itemType) =>
         _itemOptionsMap.GetOrAdd(itemType, AddOptions(itemType));
 
-    public List<ItemConfiguration> GetAllItemConfigurations(params Assembly[]? assemblies)
+    public List<IItemConfiguration> GetAllItemConfigurations(params Assembly[]? assemblies)
     {
         IEnumerable<Type> itemTypes = (assemblies ?? AppDomain.CurrentDomain.GetAssemblies())
             .SelectMany(s => s.GetTypes())
-            .Where(p => typeof(IItem).IsAssignableFrom(p) && p is {IsInterface: false, IsAbstract: false});
+            .Where(p => typeof(IItem).IsAssignableFrom(p) && p is { IsInterface: false, IsAbstract: false });
 
         foreach (Type itemType in itemTypes)
         {
@@ -45,6 +46,7 @@ class DefaultCosmosItemConfigurationProvider(
         var sync = syncContainerPropertiesProvider.GetWhetherToSyncContainerProperties(itemType);
         ThroughputProperties? throughputProperties = cosmosThroughputProvider.GetThroughputProperties(itemType);
         var useStrictTypeChecking = cosmosStrictTypeCheckingProvider.UseStrictTypeChecking(itemType);
+        var optimizeBandwidth = cosmosOptimizeBandwidthProvider.OptimizeBandwidth(itemType);
 
         return new(
             itemType,
@@ -54,6 +56,7 @@ class DefaultCosmosItemConfigurationProvider(
             throughputProperties,
             timeToLive,
             sync,
-            useStrictTypeChecking: useStrictTypeChecking);
+            useStrictTypeChecking: useStrictTypeChecking,
+            optimizeBandwidth: optimizeBandwidth);
     }
 }

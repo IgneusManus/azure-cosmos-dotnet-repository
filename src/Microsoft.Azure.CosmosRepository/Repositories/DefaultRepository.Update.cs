@@ -16,7 +16,7 @@ internal sealed partial class DefaultRepository<TItem>
             await containerProvider.GetContainerAsync()
                 .ConfigureAwait(false);
 
-        var optimizeBandwidth = cosmosOptimizeBandwidthProvider.OptimizeBandwidth<TItem>();
+        var optimizeBandwidth = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().OptimizeBandwidth;
         var options = new ItemRequestOptions()
         {
             EnableContentResponseOnWrite = !optimizeBandwidth

@@ -33,7 +33,7 @@ internal sealed partial class DefaultRepository<TItem>
             partitionKey = new PartitionKey(id);
         }
 
-        var optimizeBandwidth = cosmosOptimizeBandwidthProvider.OptimizeBandwidth<TItem>();
+        var optimizeBandwidth = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().OptimizeBandwidth;
         var options = new ItemRequestOptions()
         {
             EnableContentResponseOnWrite = !optimizeBandwidth

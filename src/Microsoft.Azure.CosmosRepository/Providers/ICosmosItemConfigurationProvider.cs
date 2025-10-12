@@ -8,9 +8,9 @@ namespace Microsoft.Azure.CosmosRepository.Providers;
 /// </summary>
 internal interface ICosmosItemConfigurationProvider
 {
-    ItemConfiguration GetItemConfiguration<TItem>() where TItem : IItem;
+    IItemConfiguration GetItemConfiguration<TItem>() where TItem : IItem;
 
-    ItemConfiguration GetItemConfiguration(Type itemType);
+    IItemConfiguration GetItemConfiguration(Type itemType);
 
-    List<ItemConfiguration> GetAllItemConfigurations(params Assembly[]? assemblies);
+    List<IItemConfiguration> GetAllItemConfigurations(params Assembly[]? assemblies);
 }

@@ -7,7 +7,7 @@ namespace Microsoft.Azure.CosmosRepository;
 /// <inheritdoc/>
 internal sealed partial class DefaultRepository<TItem>(
     IOptionsMonitor<RepositoryOptions> optionsMonitor,
-    ICosmosOptimizeBandwidthProvider cosmosOptimizeBandwidthProvider,
+    ICosmosItemConfigurationProvider cosmosItemConfigurationProvider,
     ICosmosContainerProvider<TItem> containerProvider,
     ILogger<DefaultRepository<TItem>> logger,
     ICosmosQueryableProcessor cosmosQueryableProcessor,

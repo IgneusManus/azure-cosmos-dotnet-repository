@@ -9,7 +9,8 @@ public class DefaultRepositoryTests
     readonly Mock<ICosmosContainerProvider<TestItem>> _containerProviderForTestItem = new();
     readonly Mock<ICosmosQueryableProcessor> _queryableProcessor = new();
     readonly Mock<IOptionsMonitor<RepositoryOptions>> _options = new();
-    readonly Mock<ICosmosOptimizeBandwidthProvider> _cosmosOptimizeBandwidthProvider = new();
+    readonly Mock<ICosmosItemConfigurationProvider> _cosmosItemConfigurationProvider = new();
+    readonly Mock<IItemConfiguration> _itemConfiguration = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<Container> _container = new();
     readonly IRepositoryExpressionProvider _expressionProvider = new MockExpressionProvider();
@@ -18,12 +19,13 @@ public class DefaultRepositoryTests
     public DefaultRepositoryTests()
     {
         _options.Setup(o => o.CurrentValue).Returns(_repositoryOptions);
-        _cosmosOptimizeBandwidthProvider.Setup(o => o.OptimizeBandwidth<IItem>()).Returns(() => _repositoryOptions.OptimizeBandwidth);
+        _itemConfiguration.Setup(o => o.OptimizeBandwidth).Returns(() => _repositoryOptions.OptimizeBandwidth);
+        _cosmosItemConfigurationProvider.Setup(o => o.GetItemConfiguration<IItem>()).Returns(_itemConfiguration.Object);
     }
 
     private DefaultRepository<TestItemWithEtag> RepositoryForItemWithETag =>
         new(_options.Object,
-            _cosmosOptimizeBandwidthProvider.Object,
+            _cosmosItemConfigurationProvider.Object,
             _containerProviderForTestItemWithETag.Object,
             new NullLogger<DefaultRepository<TestItemWithEtag>>(),
             _queryableProcessor.Object,
@@ -32,7 +34,7 @@ public class DefaultRepositoryTests
 
     private DefaultRepository<TestItem> RepositoryForItemWithoutETag =>
         new(_options.Object,
-            _cosmosOptimizeBandwidthProvider.Object,
+            _cosmosItemConfigurationProvider.Object,
             _containerProviderForTestItem.Object,
             new NullLogger<DefaultRepository<TestItem>>(),
             _queryableProcessor.Object,
