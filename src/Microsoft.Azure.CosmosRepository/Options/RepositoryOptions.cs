@@ -107,6 +107,12 @@ public class RepositoryOptions
     public IItemContainerBuilder ContainerBuilder { get; } = new DefaultItemContainerBuilder();
 
     /// <summary>
+    /// A builder to configure ItemRequestOptions for IItem types.
+    /// Used to provide different ItemRequestOptions for Create, Update/Upsert, Patch, and Delete operations.
+    /// </summary>
+    public IItemRequestOptionsBuilder RequestOptionsBuilder { get; } = new DefaultItemRequestOptionsBuilder();
+
+    /// <summary>
     /// Used to tell the SDK whether or not to try and creates databases and containers if they do not exist.
     /// </summary>
     /// <remarks>This feature is very powerful for local development. However, in scenarios where infrastructure as code is used this may not be required.</remarks>

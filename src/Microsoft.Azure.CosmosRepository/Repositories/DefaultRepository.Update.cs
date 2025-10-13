@@ -16,12 +16,7 @@ internal sealed partial class DefaultRepository<TItem>
             await containerProvider.GetContainerAsync()
                 .ConfigureAwait(false);
 
-        var optimizeBandwidth = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().OptimizeBandwidth;
-        var options = new ItemRequestOptions()
-        {
-            EnableContentResponseOnWrite = !optimizeBandwidth
-        };
-
+        var options = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().UpdateItemRequestOptions;
         if (value is IItemWithEtag valueWithEtag && !ignoreEtag)
         {
             options.IfMatchEtag = string.IsNullOrWhiteSpace(valueWithEtag.Etag)
@@ -36,7 +31,7 @@ internal sealed partial class DefaultRepository<TItem>
 
         TryLogDebugDetails(logger, () => $"Updated: {JsonConvert.SerializeObject(value)}");
 
-        return optimizeBandwidth ? value : response.Resource;
+        return true != options.EnableContentResponseOnWrite ? value : response.Resource;
     }
 
     /// <inheritdoc/>

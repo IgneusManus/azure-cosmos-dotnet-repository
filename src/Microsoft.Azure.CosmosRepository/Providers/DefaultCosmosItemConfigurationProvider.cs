@@ -11,7 +11,7 @@ class DefaultCosmosItemConfigurationProvider(
     ICosmosContainerSyncContainerPropertiesProvider syncContainerPropertiesProvider,
     ICosmosThroughputProvider cosmosThroughputProvider,
     ICosmosStrictTypeCheckingProvider cosmosStrictTypeCheckingProvider,
-    ICosmosOptimizeBandwidthProvider cosmosOptimizeBandwidthProvider) : ICosmosItemConfigurationProvider
+    IItemRequestOptionsProvider itemRequestOptionsProvider) : ICosmosItemConfigurationProvider
 {
     private static readonly ConcurrentDictionary<Type, IItemConfiguration> _itemOptionsMap = new();
 
@@ -46,7 +46,10 @@ class DefaultCosmosItemConfigurationProvider(
         var sync = syncContainerPropertiesProvider.GetWhetherToSyncContainerProperties(itemType);
         ThroughputProperties? throughputProperties = cosmosThroughputProvider.GetThroughputProperties(itemType);
         var useStrictTypeChecking = cosmosStrictTypeCheckingProvider.UseStrictTypeChecking(itemType);
-        var optimizeBandwidth = cosmosOptimizeBandwidthProvider.OptimizeBandwidth(itemType);
+        var createItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Create);
+        var updateItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Upsert);
+        var patchItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Patch);
+        var deleteItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Delete);
 
         return new(
             itemType,
@@ -54,9 +57,12 @@ class DefaultCosmosItemConfigurationProvider(
             partitionKeyPath,
             uniqueKeyPolicy,
             throughputProperties,
+            createItemRequestOptions,
+            updateItemRequestOptions,
+            patchItemRequestOptions,
+            deleteItemRequestOptions,
             timeToLive,
             sync,
-            useStrictTypeChecking: useStrictTypeChecking,
-            optimizeBandwidth: optimizeBandwidth);
+            useStrictTypeChecking: useStrictTypeChecking);
     }
 }

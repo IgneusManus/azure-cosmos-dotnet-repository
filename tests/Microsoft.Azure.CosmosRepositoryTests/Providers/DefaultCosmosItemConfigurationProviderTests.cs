@@ -12,7 +12,7 @@ public class DefaultCosmosItemConfigurationProviderTests
     readonly Mock<ICosmosContainerSyncContainerPropertiesProvider> _syncContainerPropertiesProvider = new();
     readonly Mock<ICosmosThroughputProvider> _throughputProvider = new();
     readonly Mock<ICosmosStrictTypeCheckingProvider> _strictTypeCheckingProvider = new();
-    readonly Mock<ICosmosOptimizeBandwidthProvider> _cosmosOptimizeBandwidthProvider = new();
+    readonly Mock<IItemRequestOptionsProvider> _itemRequestOptionsProvider = new();
 
     [Fact]
     public void GetOptionsAlwaysGetOptionsForItem()
@@ -25,7 +25,7 @@ public class DefaultCosmosItemConfigurationProviderTests
             _syncContainerPropertiesProvider.Object,
             _throughputProvider.Object,
             _strictTypeCheckingProvider.Object,
-            _cosmosOptimizeBandwidthProvider.Object
+            _itemRequestOptionsProvider.Object
         );
 
         UniqueKeyPolicy uniqueKeyPolicy = new();
@@ -37,7 +37,6 @@ public class DefaultCosmosItemConfigurationProviderTests
         _defaultTimeToLiveProvider.Setup(o => o.GetDefaultTimeToLive(typeof(Item1))).Returns(10);
         _syncContainerPropertiesProvider.Setup(o => o.GetWhetherToSyncContainerProperties(typeof(Item1))).Returns(true);
         _throughputProvider.Setup(o => o.GetThroughputProperties(typeof(Item1))).Returns(throughputProperties);
-        _cosmosOptimizeBandwidthProvider.Setup(o => o.OptimizeBandwidth(typeof(Item1))).Returns(true);
 
         IItemConfiguration configuration = provider.GetItemConfiguration<Item1>();
 
@@ -47,7 +46,6 @@ public class DefaultCosmosItemConfigurationProviderTests
         Assert.Equal(10, configuration.DefaultTimeToLive);
         Assert.True(configuration.SyncContainerProperties);
         Assert.Equal(throughputProperties, configuration.ThroughputProperties);
-        Assert.True(configuration.OptimizeBandwidth);
     }
 
     [Fact]
@@ -61,7 +59,7 @@ public class DefaultCosmosItemConfigurationProviderTests
             _syncContainerPropertiesProvider.Object,
             _throughputProvider.Object,
             _strictTypeCheckingProvider.Object,
-            _cosmosOptimizeBandwidthProvider.Object);
+            _itemRequestOptionsProvider.Object);
 
         _containerNameProvider.Setup(o => o.GetContainerName(It.IsAny<Type>())).Returns<Type>(t => t.FullName!);
 

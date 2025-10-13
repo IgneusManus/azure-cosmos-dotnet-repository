@@ -33,11 +33,7 @@ internal sealed partial class DefaultRepository<TItem>
             partitionKey = new PartitionKey(id);
         }
 
-        var optimizeBandwidth = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().OptimizeBandwidth;
-        var options = new ItemRequestOptions()
-        {
-            EnableContentResponseOnWrite = !optimizeBandwidth
-        };
+        var options = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().DeleteItemRequestOptions;
 
         _ = await container.DeleteItemAsync<TItem>(id, partitionKey, options, cancellationToken)
             .ConfigureAwait(false);

@@ -18,10 +18,16 @@ internal partial class DefaultRepository<TItem>
         Container container = await containerProvider.GetContainerAsync();
 
         TransactionalBatch batch = container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+        var updateItemOptions = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().UpdateItemRequestOptions;
 
         foreach (TItem item in list)
         {
-            TransactionalBatchItemRequestOptions options = new();
+            TransactionalBatchItemRequestOptions options = new()
+            {
+                IndexingDirective = updateItemOptions.IndexingDirective,
+                Properties = updateItemOptions.Properties,
+                EnableContentResponseOnWrite = updateItemOptions.EnableContentResponseOnWrite
+            };
 
             if (item is IItemWithEtag itemWithEtag)
             {
@@ -51,10 +57,18 @@ internal partial class DefaultRepository<TItem>
         Container container = await containerProvider.GetContainerAsync();
 
         TransactionalBatch batch = container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+        var createItemOptions = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().CreateItemRequestOptions;
 
         foreach (TItem item in list)
         {
-            batch.CreateItem(item);
+            TransactionalBatchItemRequestOptions options = new()
+            {
+                IndexingDirective = createItemOptions.IndexingDirective,
+                Properties = createItemOptions.Properties,
+                EnableContentResponseOnWrite = createItemOptions.EnableContentResponseOnWrite
+            };
+
+            batch.CreateItem(item, options);
         }
 
         using TransactionalBatchResponse response = await batch.ExecuteAsync(cancellationToken);
@@ -76,9 +90,17 @@ internal partial class DefaultRepository<TItem>
         Container container = await containerProvider.GetContainerAsync();
 
         TransactionalBatch batch = container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+        var deleteItemOptions = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().DeleteItemRequestOptions;
 
         foreach (TItem item in list)
         {
+            TransactionalBatchItemRequestOptions options = new()
+            {
+                IndexingDirective = deleteItemOptions.IndexingDirective,
+                Properties = deleteItemOptions.Properties,
+                EnableContentResponseOnWrite = deleteItemOptions.EnableContentResponseOnWrite
+            };
+
             batch.DeleteItem(item.Id);
         }
 

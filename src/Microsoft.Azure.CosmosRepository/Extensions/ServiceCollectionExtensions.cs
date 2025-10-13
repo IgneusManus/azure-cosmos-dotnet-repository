@@ -73,7 +73,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ILeaseContainerProvider, DefaultLeaseContainerProvider>()
             .AddSingleton<IChangeFeedOptionsProvider, DefaultChangeFeedOptionsProvider>()
             .AddSingleton<ICosmosStrictTypeCheckingProvider, DefaultCosmosStrictTypeCheckingProvider>()
-            .AddSingleton<ICosmosOptimizeBandwidthProvider, DefaultCosmosOptimizeBandwidthProvider>();
+            .AddSingleton<IItemRequestOptionsProvider, DefaultItemRequestOptionsProvider>();
 
         if (setupAction != default)
         {

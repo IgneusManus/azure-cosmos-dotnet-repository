@@ -26,5 +26,11 @@ internal interface IItemConfiguration
 
     bool UseStrictTypeChecking { get; }
 
-    bool OptimizeBandwidth { get; }
+    ItemRequestOptions CreateItemRequestOptions { get; }
+
+    ItemRequestOptions UpdateItemRequestOptions { get; }
+
+    ItemRequestOptions PatchItemRequestOptions { get; }
+
+    ItemRequestOptions DeleteItemRequestOptions { get; }
 }

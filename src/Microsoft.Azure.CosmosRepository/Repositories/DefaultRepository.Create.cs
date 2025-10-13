@@ -20,9 +20,10 @@ internal sealed partial class DefaultRepository<TItem>
             valueWithTimestamps.CreatedTimeUtc = DateTime.UtcNow;
         }
 
+        var options = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().CreateItemRequestOptions;
+
         ItemResponse<TItem> response =
-            await container.CreateItemAsync(value, new PartitionKey(value.PartitionKey),
-                    cancellationToken: cancellationToken)
+            await container.CreateItemAsync(value, new PartitionKey(value.PartitionKey), options, cancellationToken)
                 .ConfigureAwait(false);
 
         TryLogDebugDetails(logger, () => $"Created: {JsonConvert.SerializeObject(value)}");

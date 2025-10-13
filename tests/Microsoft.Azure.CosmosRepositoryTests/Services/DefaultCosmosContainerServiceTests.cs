@@ -14,6 +14,7 @@ public class DefaultCosmosContainerServiceTests
     readonly Mock<DatabaseResponse> _databaseResponse = new();
     readonly Mock<ContainerResponse> _containerResponse = new();
     readonly RepositoryOptions _repositoryOptions = new();
+    readonly Mock<ItemRequestOptions> _itemRequestOptions = new();
 
     public DefaultCosmosContainerServiceTests()
     {
@@ -48,7 +49,11 @@ public class DefaultCosmosContainerServiceTests
             "a",
             "/id",
             new(),
-            ThroughputProperties.CreateManualThroughput(400));
+            ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(itemConfiguration);
 
@@ -81,7 +86,17 @@ public class DefaultCosmosContainerServiceTests
         ICosmosContainerService service = CreateDefaultCosmosContainerService();
         _repositoryOptions.ContainerPerItemType = true;
 
-        ItemConfiguration itemConfiguration = new(typeof(TestItemWithEtag), "a", "/test", new(), ThroughputProperties.CreateManualThroughput(400), 5);
+        ItemConfiguration itemConfiguration = new(
+            typeof(TestItemWithEtag),
+            "a",
+            "/test",
+            new(),
+            ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            5);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(itemConfiguration);
 
@@ -115,7 +130,18 @@ public class DefaultCosmosContainerServiceTests
         ICosmosContainerService service = CreateDefaultCosmosContainerService();
         _repositoryOptions.ContainerPerItemType = true;
 
-        ItemConfiguration itemConfiguration = new(typeof(TestItemWithEtag), "a", "/test", new(), ThroughputProperties.CreateManualThroughput(400), 5, true);
+        ItemConfiguration itemConfiguration = new(
+            typeof(TestItemWithEtag),
+            "a",
+            "/test",
+            new(),
+            ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            5,
+            true);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(itemConfiguration);
 
@@ -150,7 +176,18 @@ public class DefaultCosmosContainerServiceTests
         ICosmosContainerService service = CreateDefaultCosmosContainerService();
         _repositoryOptions.ContainerPerItemType = true;
 
-        ItemConfiguration itemConfiguration = new(typeof(TestItemWithEtag), "a", "/test", new(), ThroughputProperties.CreateManualThroughput(400), 5, false);
+        ItemConfiguration itemConfiguration = new(
+            typeof(TestItemWithEtag),
+            "a",
+            "/test",
+            new(),
+            ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            5,
+            false);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(itemConfiguration);
 
@@ -183,7 +220,18 @@ public class DefaultCosmosContainerServiceTests
         ICosmosContainerService service = CreateDefaultCosmosContainerService();
         _repositoryOptions.ContainerPerItemType = true;
 
-        ItemConfiguration itemConfiguration = new(typeof(TestItemWithEtag), "a", "/test", new(), ThroughputProperties.CreateManualThroughput(400), 5, true);
+        ItemConfiguration itemConfiguration = new(
+            typeof(TestItemWithEtag),
+            "a",
+            "/test",
+            new(),
+            ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            5,
+            true);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(itemConfiguration);
 
@@ -219,9 +267,31 @@ public class DefaultCosmosContainerServiceTests
         ICosmosContainerService service = CreateDefaultCosmosContainerService();
         _repositoryOptions.ContainerPerItemType = true;
 
-        ItemConfiguration testItemConfiguration = new(typeof(TestItemWithEtag), "a", "/test", new(), ThroughputProperties.CreateManualThroughput(400), 5, true);
+        ItemConfiguration testItemConfiguration = new(
+            typeof(TestItemWithEtag),
+             "a",
+             "/test",
+             new(),
+             ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+             5,
+             true);
 
-        ItemConfiguration anotherTestItemConfiguration = new(typeof(AnotherTestItem), "a", "/test", new(), ThroughputProperties.CreateManualThroughput(400), 5, true);
+        ItemConfiguration anotherTestItemConfiguration = new(
+            typeof(AnotherTestItem),
+            "a",
+            "/test",
+            new(),
+            ThroughputProperties.CreateManualThroughput(400),
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            _itemRequestOptions.Object,
+            5,
+            true);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(testItemConfiguration);
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(AnotherTestItem))).Returns(anotherTestItemConfiguration);

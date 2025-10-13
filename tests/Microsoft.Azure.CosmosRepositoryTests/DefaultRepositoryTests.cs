@@ -10,7 +10,6 @@ public class DefaultRepositoryTests
     readonly Mock<ICosmosQueryableProcessor> _queryableProcessor = new();
     readonly Mock<IOptionsMonitor<RepositoryOptions>> _options = new();
     readonly Mock<ICosmosItemConfigurationProvider> _cosmosItemConfigurationProvider = new();
-    readonly Mock<IItemConfiguration> _itemConfiguration = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<Container> _container = new();
     readonly IRepositoryExpressionProvider _expressionProvider = new MockExpressionProvider();
@@ -19,8 +18,12 @@ public class DefaultRepositoryTests
     public DefaultRepositoryTests()
     {
         _options.Setup(o => o.CurrentValue).Returns(_repositoryOptions);
-        _itemConfiguration.Setup(o => o.OptimizeBandwidth).Returns(() => _repositoryOptions.OptimizeBandwidth);
-        _cosmosItemConfigurationProvider.Setup(o => o.GetItemConfiguration<IItem>()).Returns(_itemConfiguration.Object);
+        _cosmosItemConfigurationProvider.Setup(o => o.GetItemConfiguration<IItem>()).Returns(() =>
+        {
+            var itemConfiguration = new Mock<IItemConfiguration>();
+            itemConfiguration.Setup(o => o.UpdateItemRequestOptions).Returns(() => new ItemRequestOptions() { EnableContentResponseOnWrite = !_repositoryOptions.OptimizeBandwidth });
+            return itemConfiguration.Object;
+        });
     }
 
     private DefaultRepository<TestItemWithEtag> RepositoryForItemWithETag =>
