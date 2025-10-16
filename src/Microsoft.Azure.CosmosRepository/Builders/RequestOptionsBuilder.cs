@@ -32,7 +32,7 @@ public class RequestOptionsBuilder(Type type)
     /// <summary>
     /// The <see cref="ItemRequestOptions"/> to use when patching an item.
     /// </summary>
-    internal ItemRequestOptions? PatchItemRequestOptions { get; private set; }
+    internal PatchItemRequestOptions? PatchItemRequestOptions { get; private set; }
 
     /// <summary>
     /// The <see cref="ItemRequestOptions"/> to use when deleting an item.
@@ -74,17 +74,17 @@ public class RequestOptionsBuilder(Type type)
     }
 
     /// <summary>
-    /// Sets the <see cref="ItemRequestOptions"/> to use when patching all items of this type.
-    /// Can be overridden by passing an ItemRequestOptions instance to this library's Update methods when
+    /// Sets the <see cref="PatchItemRequestOptions"/> to use when patching all items of this type.
+    /// Can be overridden by passing an PatchItemRequestOptions instance to this library's Update methods when
     /// using the Patch overloads.
     /// </summary>
-    /// <param name="options">The <see cref="ItemRequestOptions"/> to use.
+    /// <param name="options">The <see cref="PatchItemRequestOptions"/> to use.
     /// If the "EnableContentResponseOnWrite" property is set, it will override this library's 
     /// global RepositoryOptions.OptimizeBandwidth setting when patching items of this type
     /// </param>
     /// <returns>The <see cref="RequestOptionsBuilder"/>.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public RequestOptionsBuilder WithPatchItemRequestOptions(ItemRequestOptions options)
+    public RequestOptionsBuilder WithPatchItemRequestOptions(PatchItemRequestOptions options)
     {
         PatchItemRequestOptions = options ?? throw new ArgumentNullException(nameof(options));
         return this;

@@ -21,7 +21,9 @@ public class DefaultRepositoryTests
         _cosmosItemConfigurationProvider.Setup(o => o.GetItemConfiguration<IItem>()).Returns(() =>
         {
             var itemConfiguration = new Mock<IItemConfiguration>();
+            itemConfiguration.Setup(o => o.CreateItemRequestOptions).Returns(() => new ItemRequestOptions() { EnableContentResponseOnWrite = !_repositoryOptions.OptimizeBandwidth });
             itemConfiguration.Setup(o => o.UpdateItemRequestOptions).Returns(() => new ItemRequestOptions() { EnableContentResponseOnWrite = !_repositoryOptions.OptimizeBandwidth });
+            itemConfiguration.Setup(o => o.PatchItemRequestOptions).Returns(() => new PatchItemRequestOptions() { EnableContentResponseOnWrite = !_repositoryOptions.OptimizeBandwidth });
             return itemConfiguration.Object;
         });
     }

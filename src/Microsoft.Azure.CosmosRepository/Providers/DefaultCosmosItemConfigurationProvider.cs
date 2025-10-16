@@ -48,7 +48,7 @@ class DefaultCosmosItemConfigurationProvider(
         var useStrictTypeChecking = cosmosStrictTypeCheckingProvider.UseStrictTypeChecking(itemType);
         var createItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Create);
         var updateItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Upsert);
-        var patchItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Patch);
+        var patchItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Patch) as PatchItemRequestOptions ?? new PatchItemRequestOptions();
         var deleteItemRequestOptions = itemRequestOptionsProvider.GetCreateItemRequestOptions(itemType, OperationType.Delete);
 
         return new(

@@ -28,7 +28,7 @@ internal sealed partial class DefaultRepository<TItem>
 
         TryLogDebugDetails(logger, () => $"Created: {JsonConvert.SerializeObject(value)}");
 
-        return response.Resource;
+        return true != options.EnableContentResponseOnWrite ? value : response.Resource;
     }
 
     /// <inheritdoc/>

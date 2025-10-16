@@ -15,6 +15,7 @@ public class DefaultCosmosContainerServiceTests
     readonly Mock<ContainerResponse> _containerResponse = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<ItemRequestOptions> _itemRequestOptions = new();
+    readonly PatchItemRequestOptions _patchItemRequestOptions = new();
 
     public DefaultCosmosContainerServiceTests()
     {
@@ -52,7 +53,7 @@ public class DefaultCosmosContainerServiceTests
             ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object);
 
         _itemConfigurationProvider.Setup(o => o.GetItemConfiguration(typeof(TestItemWithEtag))).Returns(itemConfiguration);
@@ -94,7 +95,7 @@ public class DefaultCosmosContainerServiceTests
             ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object,
             5);
 
@@ -138,7 +139,7 @@ public class DefaultCosmosContainerServiceTests
             ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object,
             5,
             true);
@@ -184,7 +185,7 @@ public class DefaultCosmosContainerServiceTests
             ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object,
             5,
             false);
@@ -228,7 +229,7 @@ public class DefaultCosmosContainerServiceTests
             ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object,
             5,
             true);
@@ -269,16 +270,16 @@ public class DefaultCosmosContainerServiceTests
 
         ItemConfiguration testItemConfiguration = new(
             typeof(TestItemWithEtag),
-             "a",
-             "/test",
-             new(),
-             ThroughputProperties.CreateManualThroughput(400),
+            "a",
+            "/test",
+            new(),
+            ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
-             5,
-             true);
+            5,
+            true);
 
         ItemConfiguration anotherTestItemConfiguration = new(
             typeof(AnotherTestItem),
@@ -288,7 +289,7 @@ public class DefaultCosmosContainerServiceTests
             ThroughputProperties.CreateManualThroughput(400),
             _itemRequestOptions.Object,
             _itemRequestOptions.Object,
-            _itemRequestOptions.Object,
+            _patchItemRequestOptions,
             _itemRequestOptions.Object,
             5,
             true);

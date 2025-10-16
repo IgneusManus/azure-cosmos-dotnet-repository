@@ -11,7 +11,7 @@ internal class ItemConfiguration(
     ThroughputProperties? throughputProperties,
     ItemRequestOptions createItemRequestOptions,
     ItemRequestOptions updateItemRequestOptions,
-    ItemRequestOptions patchItemRequestOptions,
+    PatchItemRequestOptions patchItemRequestOptions,
     ItemRequestOptions deleteItemRequestOptions,
     int defaultTimeToLive = -1,
     bool syncContainerProperties = false,
@@ -21,7 +21,7 @@ internal class ItemConfiguration(
     // Keep original (template) options private and immutable to callers.
     private ItemRequestOptions _createTemplate { get; } = createItemRequestOptions ?? new ItemRequestOptions();
     private ItemRequestOptions _updateTemplate { get; } = updateItemRequestOptions ?? new ItemRequestOptions();
-    private ItemRequestOptions _patchTemplate { get; } = patchItemRequestOptions ?? new ItemRequestOptions();
+    private PatchItemRequestOptions _patchTemplate { get; } = patchItemRequestOptions ?? new PatchItemRequestOptions();
     private ItemRequestOptions _deleteTemplate { get; } = deleteItemRequestOptions ?? new ItemRequestOptions();
 
     public Type Type { get; } = type;
@@ -42,27 +42,44 @@ internal class ItemConfiguration(
 
     public bool UseStrictTypeChecking { get; } = useStrictTypeChecking;
 
-    public ItemRequestOptions CreateItemRequestOptions => CloneItemRequestOptions(_createTemplate);
+    public ItemRequestOptions CreateItemRequestOptions => DeepCloneRequestOptions(_createTemplate);
 
-    public ItemRequestOptions UpdateItemRequestOptions => CloneItemRequestOptions(_updateTemplate);
+    public ItemRequestOptions UpdateItemRequestOptions => DeepCloneRequestOptions(_updateTemplate);
 
-    public ItemRequestOptions PatchItemRequestOptions => CloneItemRequestOptions(_patchTemplate);
+    public PatchItemRequestOptions PatchItemRequestOptions => DeepCloneRequestOptions(_patchTemplate);
 
-    public ItemRequestOptions DeleteItemRequestOptions => CloneItemRequestOptions(_deleteTemplate);
+    public ItemRequestOptions DeleteItemRequestOptions => DeepCloneRequestOptions(_deleteTemplate);
 
-    private static ItemRequestOptions CloneItemRequestOptions(ItemRequestOptions source)
+    private static T DeepCloneRequestOptions<T>(T template) where T : ItemRequestOptions
     {
-        var clone = new ItemRequestOptions();
+        var clone = (T)template.ShallowCopy();
 
-        foreach (var prop in typeof(ItemRequestOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        if (clone.PreTriggers is not null)
         {
-            if (!prop.CanRead || !prop.CanWrite)
-            {
-                continue;
-            }
+            clone.PreTriggers = [.. clone.PreTriggers];
+        }
 
-            var value = prop.GetValue(source);
-            prop.SetValue(clone, value);
+        if (clone.PostTriggers is not null)
+        {
+            clone.PostTriggers = [.. clone.PostTriggers];
+        }
+
+        if (clone.Properties is not null)
+        {
+            var props = new Dictionary<string, object>(clone.Properties.Count);
+            foreach (var kvp in clone.Properties)
+            {
+                props[kvp.Key] = kvp.Value;
+            }
+            clone.Properties = props;
+        }
+
+        if (clone.DedicatedGatewayRequestOptions is not null)
+        {
+            clone.DedicatedGatewayRequestOptions = new DedicatedGatewayRequestOptions
+            {
+                MaxIntegratedCacheStaleness = clone.DedicatedGatewayRequestOptions.MaxIntegratedCacheStaleness
+            };
         }
 
         return clone;

@@ -65,7 +65,7 @@ internal sealed partial class DefaultRepository<TItem>
 
         partitionKeyValue ??= id;
 
-        PatchItemRequestOptions patchItemRequestOptions = new();
+        var patchItemRequestOptions = cosmosItemConfigurationProvider.GetItemConfiguration<TItem>().PatchItemRequestOptions;
         if (etag != default && !string.IsNullOrWhiteSpace(etag))
         {
             patchItemRequestOptions.IfMatchEtag = etag;

@@ -101,7 +101,7 @@ internal partial class DefaultRepository<TItem>
                 EnableContentResponseOnWrite = deleteItemOptions.EnableContentResponseOnWrite
             };
 
-            batch.DeleteItem(item.Id);
+            batch.DeleteItem(item.Id, options);
         }
 
         using TransactionalBatchResponse response = await batch.ExecuteAsync(cancellationToken);

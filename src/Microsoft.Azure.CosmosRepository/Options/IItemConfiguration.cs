@@ -30,7 +30,7 @@ internal interface IItemConfiguration
 
     ItemRequestOptions UpdateItemRequestOptions { get; }
 
-    ItemRequestOptions PatchItemRequestOptions { get; }
+    PatchItemRequestOptions PatchItemRequestOptions { get; }
 
     ItemRequestOptions DeleteItemRequestOptions { get; }
 }
