@@ -57,7 +57,10 @@ internal sealed partial class DefaultRepository<TItem>
     {
         CosmosPropertyNamingPolicy? propertyNamingPolicy =
             optionsMonitor.CurrentValue.SerializationOptions?.PropertyNamingPolicy;
-        IPatchOperationBuilder<TItem> patchOperationBuilder = new PatchOperationBuilder<TItem>(propertyNamingPolicy);
+        System.Text.Json.JsonSerializerOptions? systemTextJsonOptions =
+            cosmosClientOptionsProvider.ClientOptions.UseSystemTextJsonSerializerWithOptions;
+        IPatchOperationBuilder<TItem> patchOperationBuilder =
+            new PatchOperationBuilder<TItem>(propertyNamingPolicy, systemTextJsonOptions);
 
         builder(patchOperationBuilder);
 

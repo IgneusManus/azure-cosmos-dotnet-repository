@@ -24,8 +24,118 @@ public class RequiredAndJsonItem : Item
     public string TestProperty { get; set; } = null!;
 }
 
+/// <summary>
+/// An item stored by a client configured with <see cref="CosmosClientOptions.UseSystemTextJsonSerializerWithOptions"/>:
+/// only System.Text.Json attributes and its naming policy decide the stored property names.
+/// </summary>
+public class SystemTextJsonItem : Item
+{
+    [System.Text.Json.Serialization.JsonPropertyName("renamed")]
+    public string TestProperty { get; set; } = null!;
+
+    [JsonProperty("newtonsoftName")]
+    public int TestIntProperty { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public SystemTextJsonChild Child { get; set; } = new();
+}
+
+public class SystemTextJsonChild
+{
+    public DateTime LastReadAt { get; set; }
+}
+
 public class PatchOperationBuilderTests
 {
+    private static readonly System.Text.Json.JsonSerializerOptions CamelCaseSystemTextJson = new()
+    {
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+    };
+
+    [Theory]
+    [InlineData(CosmosPropertyNamingPolicy.Default)]
+    [InlineData(CosmosPropertyNamingPolicy.CamelCase)]
+    [InlineData(null)]
+    public void ReplaceWithSystemTextJsonOptionsFollowsItsNamingPolicyRegardlessOfCosmosPolicy(CosmosPropertyNamingPolicy? cosmosPolicy)
+    {
+        //Arrange
+        IPatchOperationBuilder<SystemTextJsonItem> builder = new PatchOperationBuilder<SystemTextJsonItem>(cosmosPolicy, CamelCaseSystemTextJson);
+
+        //Act
+        builder.Replace(x => x.IsDeleted, true);
+
+        //Assert
+        PatchOperation operation = builder.PatchOperations[0];
+        Assert.Equal(PatchOperationType.Replace, operation.OperationType);
+        Assert.Equal("/isDeleted", operation.Path);
+    }
+
+    [Fact]
+    public void ReplaceWithSystemTextJsonOptionsUsesJsonPropertyNameAttribute()
+    {
+        //Arrange
+        IPatchOperationBuilder<SystemTextJsonItem> builder = new PatchOperationBuilder<SystemTextJsonItem>(CosmosPropertyNamingPolicy.Default, CamelCaseSystemTextJson);
+
+        //Act
+        builder.Replace(x => x.TestProperty, "100");
+
+        //Assert
+        Assert.Equal("/renamed", builder.PatchOperations[0].Path);
+    }
+
+    [Fact]
+    public void ReplaceWithSystemTextJsonOptionsIgnoresNewtonsoftJsonPropertyAttribute()
+    {
+        //Arrange
+        IPatchOperationBuilder<SystemTextJsonItem> builder = new PatchOperationBuilder<SystemTextJsonItem>(CosmosPropertyNamingPolicy.Default, CamelCaseSystemTextJson);
+
+        //Act
+        builder.Replace(x => x.TestIntProperty, 50);
+
+        //Assert
+        Assert.Equal("/testIntProperty", builder.PatchOperations[0].Path);
+    }
+
+    [Fact]
+    public void ReplaceWithSystemTextJsonOptionsWithoutNamingPolicyKeepsPropertyName()
+    {
+        //Arrange
+        IPatchOperationBuilder<SystemTextJsonItem> builder = new PatchOperationBuilder<SystemTextJsonItem>(CosmosPropertyNamingPolicy.CamelCase, new System.Text.Json.JsonSerializerOptions());
+
+        //Act
+        builder.Replace(x => x.IsDeleted, true);
+
+        //Assert
+        Assert.Equal("/IsDeleted", builder.PatchOperations[0].Path);
+    }
+
+    [Fact]
+    public void ReplaceWithSystemTextJsonOptionsAppliesNamingPolicyToEveryPathSegment()
+    {
+        //Arrange
+        IPatchOperationBuilder<SystemTextJsonItem> builder = new PatchOperationBuilder<SystemTextJsonItem>(CosmosPropertyNamingPolicy.Default, CamelCaseSystemTextJson);
+
+        //Act
+        builder.Replace(x => x.Child.LastReadAt, DateTime.UnixEpoch);
+
+        //Assert
+        Assert.Equal("/child/lastReadAt", builder.PatchOperations[0].Path);
+    }
+
+    [Fact]
+    public void ReplaceWithoutSystemTextJsonOptionsStillHonoursNewtonsoftJsonPropertyAttribute()
+    {
+        //Arrange
+        IPatchOperationBuilder<SystemTextJsonItem> builder = new PatchOperationBuilder<SystemTextJsonItem>(CosmosPropertyNamingPolicy.Default, null);
+
+        //Act
+        builder.Replace(x => x.TestIntProperty, 50);
+
+        //Assert
+        Assert.Equal("/newtonsoftName", builder.PatchOperations[0].Path);
+    }
+
     [Fact]
     public void ReplaceGivenPropertyValueWithJsonAttributeSetsCorrectReplaceValue()
     {

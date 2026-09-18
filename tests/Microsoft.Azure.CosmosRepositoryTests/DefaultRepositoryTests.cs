@@ -9,6 +9,7 @@ public class DefaultRepositoryTests
     readonly Mock<ICosmosContainerProvider<TestItem>> _containerProviderForTestItem = new();
     readonly Mock<ICosmosQueryableProcessor> _queryableProcessor = new();
     readonly Mock<IOptionsMonitor<RepositoryOptions>> _options = new();
+    readonly Mock<ICosmosClientOptionsProvider> _clientOptionsProvider = new();
     readonly Mock<ICosmosItemConfigurationProvider> _cosmosItemConfigurationProvider = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<Container> _container = new();
@@ -18,6 +19,7 @@ public class DefaultRepositoryTests
     public DefaultRepositoryTests()
     {
         _options.Setup(o => o.CurrentValue).Returns(_repositoryOptions);
+        _clientOptionsProvider.Setup(o => o.ClientOptions).Returns(new CosmosClientOptions());
         _cosmosItemConfigurationProvider.Setup(o => o.GetItemConfiguration<IItem>()).Returns(() =>
         {
             var itemConfiguration = new Mock<IItemConfiguration>();
@@ -30,6 +32,7 @@ public class DefaultRepositoryTests
 
     private DefaultRepository<TestItemWithEtag> RepositoryForItemWithETag =>
         new(_options.Object,
+            _clientOptionsProvider.Object,
             _cosmosItemConfigurationProvider.Object,
             _containerProviderForTestItemWithETag.Object,
             new NullLogger<DefaultRepository<TestItemWithEtag>>(),
@@ -39,6 +42,7 @@ public class DefaultRepositoryTests
 
     private DefaultRepository<TestItem> RepositoryForItemWithoutETag =>
         new(_options.Object,
+            _clientOptionsProvider.Object,
             _cosmosItemConfigurationProvider.Object,
             _containerProviderForTestItem.Object,
             new NullLogger<DefaultRepository<TestItem>>(),

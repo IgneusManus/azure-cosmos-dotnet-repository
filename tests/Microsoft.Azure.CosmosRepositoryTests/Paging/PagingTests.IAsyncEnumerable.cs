@@ -9,6 +9,7 @@ public partial class PagingTests
     readonly Mock<ICosmosContainerProvider<TestItem>> _containerProviderForTestItem = new();
     readonly Mock<ICosmosQueryableProcessor> _queryableProcessor = new();
     readonly Mock<IOptionsMonitor<RepositoryOptions>> _options = new();
+    readonly Mock<ICosmosClientOptionsProvider> _clientOptionsProvider = new();
     readonly Mock<ICosmosItemConfigurationProvider> _cosmosItemConfigurationProvider = new();
     readonly RepositoryOptions _repositoryOptions = new();
     readonly Mock<Container> _container = new();
@@ -17,6 +18,7 @@ public partial class PagingTests
 
     private DefaultRepository<TestItem> RepositoryForTestItem =>
         new(_options.Object,
+            _clientOptionsProvider.Object,
             _cosmosItemConfigurationProvider.Object,
             _containerProviderForTestItem.Object,
             new NullLogger<DefaultRepository<TestItem>>(),
