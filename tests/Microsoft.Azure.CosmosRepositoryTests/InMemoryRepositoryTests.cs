@@ -838,6 +838,21 @@ public class InMemoryRepositoryTests
     }
 
     [Fact]
+    public async Task UpdateAsync_PropertiesToSet_UpdatesValues()
+    {
+        //Arrange
+        Dog dog = new("labrador", "fred");
+        InMemoryStorage.GetDictionary<Dog>().TryAddAsJson(dog.Id, dog);
+
+        //Act
+        await _dogRepository.UpdateAsync(dog.Id, builder => builder.Set(d => d.Name, "kenny"), dog.Breed);
+
+        //Assert
+        Dog addedDog = await _dogRepository.GetAsync(dog.Id, dog.Breed);
+        Assert.Equal("kenny", addedDog.Name);
+    }
+
+    [Fact]
     public async Task UpdateAsync_PropertiesToPatch_WhenEtagMatches_UpdatesValues()
     {
         //Arrange

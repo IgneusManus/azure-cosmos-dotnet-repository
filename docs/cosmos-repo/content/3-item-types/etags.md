@@ -75,3 +75,10 @@ The following code shows how to pass the etag when doing a update to specific pr
 await repository.UpdateAsync(currentBankAccount.Id,
   builder => builder.Replace(account => account.Balance, currentBankAccount.Balance - 250), etag: currentBankAccount.Etag);
 ```
+
+`Set` can be used in place of `Replace`. It creates the property when it is absent on the stored document rather than failing as `Replace` does. The etag is passed the same way:
+
+```csharp
+await repository.UpdateAsync(currentBankAccount.Id,
+  builder => builder.Set(account => account.Name, "Current Account"), etag: currentBankAccount.Etag);
+```

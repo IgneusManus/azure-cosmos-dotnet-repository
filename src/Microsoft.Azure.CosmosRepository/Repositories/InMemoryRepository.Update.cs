@@ -105,7 +105,8 @@ internal partial class InMemoryRepository<TItem>
         builder(patchOperationBuilder);
 
         foreach (InternalPatchOperation internalPatchOperation in
-                 patchOperationBuilder._rawPatchOperations.Where(ipo => ipo.Type is PatchOperationType.Replace))
+                 patchOperationBuilder._rawPatchOperations.Where(ipo =>
+                     ipo.Type is PatchOperationType.Replace or PatchOperationType.Set))
         {
             IReadOnlyList<PropertyInfo> propertyInfos = internalPatchOperation.PropertyInfos;
             object? currentObject = item;

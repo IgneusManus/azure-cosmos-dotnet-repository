@@ -47,18 +47,28 @@ internal class PatchOperationBuilder<TItem> : IPatchOperationBuilder<TItem> wher
         _systemTextJsonOptions = systemTextJsonOptions;
     }
 
-    public IPatchOperationBuilder<TItem> Replace<TValue>(Expression<Func<TItem, TValue>> expression, TValue? value)
+    public IPatchOperationBuilder<TItem> Replace<TValue>(Expression<Func<TItem, TValue>> expression, TValue? value) =>
+        Add(expression, value, PatchOperationType.Replace, PatchOperation.Replace);
+
+    public IPatchOperationBuilder<TItem> Set<TValue>(Expression<Func<TItem, TValue>> expression, TValue? value) =>
+        Add(expression, value, PatchOperationType.Set, PatchOperation.Set);
+
+    private IPatchOperationBuilder<TItem> Add<TValue>(
+        Expression<Func<TItem, TValue>> expression,
+        TValue? value,
+        PatchOperationType type,
+        Func<string, TValue?, PatchOperation> createPatchOperation)
     {
         IReadOnlyList<PropertyInfo> propertyInfos = expression.GetPropertyInfos();
-        var propertyToReplace = GetPropertyToReplace(propertyInfos);
+        var propertyToPatch = GetPropertyToPatch(propertyInfos);
 
-        _rawPatchOperations.Add(new InternalPatchOperation(propertyInfos, value, PatchOperationType.Replace));
-        _patchOperations.Add(PatchOperation.Replace($"/{propertyToReplace}", value));
+        _rawPatchOperations.Add(new InternalPatchOperation(propertyInfos, value, type));
+        _patchOperations.Add(createPatchOperation($"/{propertyToPatch}", value));
 
         return this;
     }
 
-    private string GetPropertyToReplace(IEnumerable<MemberInfo> propertyInfos) =>
+    private string GetPropertyToPatch(IEnumerable<MemberInfo> propertyInfos) =>
         string.Join("/", propertyInfos.Cast<PropertyInfo>().Select(GetPropertyName));
 
     private string GetPropertyName(PropertyInfo propertyInfo)

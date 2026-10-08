@@ -183,6 +183,15 @@ await repository.UpdateAsync(currentBankAccount.Id,
   builder => builder.Replace(account => account.Balance, currentBankAccount.Balance - 250), etag: currentBankAccount.Etag);
 ```
 
+The patch builder supports two operations. `Replace` requires the property to already exist on the stored document, while `Set` creates the property when it is absent and overwrites it when it is present. Operations can be chained:
+
+```csharp
+await repository.UpdateAsync(currentBankAccount.Id,
+  builder => builder
+    .Replace(account => account.Balance, currentBankAccount.Balance - 250)
+    .Set(account => account.Name, "Current Account"));
+```
+
 ## Time To Live
 
 The time to live property can be set at both an item and container level. At a container level this can be done through the container options builder:
