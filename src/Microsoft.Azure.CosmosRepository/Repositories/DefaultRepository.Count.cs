@@ -32,8 +32,10 @@ internal sealed partial class DefaultRepository<TItem>
             await containerProvider.GetContainerAsync()
                 .ConfigureAwait(false);
 
-        IQueryable<TItem> query = container.GetItemLinqQueryable<TItem>(
-            linqSerializerOptions: optionsMonitor.CurrentValue.SerializationOptions);
+        IQueryable<TItem> query = container
+            .GetItemLinqQueryable<TItem>(
+                linqSerializerOptions: optionsMonitor.CurrentValue.SerializationOptions)
+            .Where(repositoryExpressionProvider.Default<TItem>());
 
         query = specificationEvaluator.GetQuery(query, specification, evaluateCriteriaOnly: true);
 
